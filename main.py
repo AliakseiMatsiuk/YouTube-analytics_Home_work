@@ -1,7 +1,7 @@
 import os
 import json
 from googleapiclient.discovery import build
-#from pprint import pprint
+from pprint import pprint
 
 
 class Channel:
@@ -14,7 +14,7 @@ class Channel:
         self.title = self.channel['items'][0]['snippet']['title']
         self.description = self.channel['items'][0]["snippet"]['description']
         self.url = "https://www.youtube.com/channel/" + self.channel_id
-        self.num_of_sub = self.channel['items'][0]['statistics']["subscriberCount"]
+        self.subscriber_count = self.channel['items'][0]['statistics']["subscriberCount"]
         self.video_count = self.channel['items'][0]['statistics']['videoCount']
         self.views_count = self.channel['items'][0]['statistics']['viewCount']
 
@@ -23,9 +23,16 @@ class Channel:
         new = json.dumps(self.channel, indent=2, ensure_ascii=False)
         return json.loads(new)
 
-    def to_json(self, data):
-        """Метод делат запись в json.filename"""
-        with open("filename", "w", encoding="UTF-8") as file:
+    def to_json(self):
+        """Сохраняем информацию по каналу в filename.json"""
+        with open("filename.json", "w", encoding="UTF-8") as file:
+            data = {"id": self._channel_id,
+                    "title": self.title,
+                    "description": self.description,
+                    "url": self.url,
+                    "subscriber_count": self.subscriber_count,
+                    "video_count": self.video_count,
+                    "views_count": self.views_count}
             json.dump(data, file, indent=2, ensure_ascii=False)
 
     @property
@@ -40,9 +47,9 @@ class Channel:
         youtube = build('youtube', 'v3', developerKey=api_key)
         return youtube
 
-#vdud = Channel('UCMCgOm8GZkHp8zJ6l7_hIuA')
+vdud = Channel('UCMCgOm8GZkHp8zJ6l7_hIuA')
 
-
+print(vdud.to_json())
 
 
 
