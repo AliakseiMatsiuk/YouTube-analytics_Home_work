@@ -1,7 +1,7 @@
 import os
 import json
 from googleapiclient.discovery import build
-from pprint import pprint
+#from pprint import pprint
 
 
 class Channel:
@@ -10,13 +10,17 @@ class Channel:
         youtube = build('youtube', 'v3', developerKey=api_key)
         self.channel = youtube.channels().list(id=channel, part='snippet,statistics').execute()
 
-        self._channel_id = self.channel["items"][0]["id"]
-        self.title = self.channel['items'][0]['snippet']['title']
-        self.description = self.channel['items'][0]["snippet"]['description']
-        self.url = "https://www.youtube.com/channel/" + self.channel_id
-        self.subscriber_count = self.channel['items'][0]['statistics']["subscriberCount"]
-        self.video_count = self.channel['items'][0]['statistics']['videoCount']
-        self.views_count = self.channel['items'][0]['statistics']['viewCount']
+        self._channel_id = self.channel["items"][0]["id"] # id
+        self.title = self.channel['items'][0]['snippet']['title'] # название канала
+        self.description = self.channel['items'][0]["snippet"]['description'] # описание канала
+        self.url = "https://www.youtube.com/channel/" + self.channel_id # ссылка на канал
+        self.subscriber_count = self.channel['items'][0]['statistics']["subscriberCount"] # количество подписчиков
+        self.video_count = self.channel['items'][0]['statistics']['videoCount'] # количество видео
+        self.views_count = self.channel['items'][0]['statistics']['viewCount'] # общее количество просмотров
+
+    def __str__(self):
+        """Возврощает название ютуб канала"""
+        return f"Youtube-канал: {self.title}"
 
     def print_info(self):
         """Выводим информацию о конале"""
@@ -42,14 +46,26 @@ class Channel:
 
     @staticmethod
     def get_service():
-        """получаем объект для работы с еAPI вне класса"""
+        """получаем объект для работы с API вне класса"""
         api_key: str = os.getenv('AFI_KEY')
         youtube = build('youtube', 'v3', developerKey=api_key)
         return youtube
 
-vdud = Channel('UCMCgOm8GZkHp8zJ6l7_hIuA')
+    def __add__(self, other):
+        """Складывает количество подпищиков"""
+        return int(self.subscriber_count) + int(other.subscriber_count)
 
-print(vdud.to_json())
+    def __lt__(self, other):
+        """Сравниквает но < количество подпищиков"""
+        return int(self.subscriber_count) < int(other.subscriber_count)
 
+    def __gt__(self, other):
+        """Сравниквает но > количество подпищиков"""
+        return int(self.subscriber_count) > int(other.subscriber_count)
+
+
+# channel_id = Channel('UC1eFXmJNkjITxPFWTy6RsWg')    # Редакция
+# vdud = Channel('UCMCgOm8GZkHp8zJ6l7_hIuA')
+# print(vdud > channel_id)
 
 
