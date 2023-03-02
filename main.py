@@ -1,7 +1,7 @@
 import os
 import json
 from googleapiclient.discovery import build
-#from pprint import pprint
+from pprint import pprint
 
 
 class Channel:
@@ -63,9 +63,45 @@ class Channel:
         """Сравниквает но > количество подпищиков"""
         return int(self.subscriber_count) > int(other.subscriber_count)
 
+class Video: #Создаем класс Video
+
+    def __init__(self, video):
+        """Иницеализируем класс по названию, колличеству просмотров и
+        колличеству лайков"""
+        api_key: str = os.getenv('AFI_KEY')
+        youtube = build('youtube', 'v3', developerKey=api_key)
+        self.video = youtube.videos().list(id=video, part='snippet,statistics').execute()
+        self.video_title = self.video['items'][0]['snippet']['title']
+        self.view_count = self.video['items'][0]['statistics']['viewCount']
+        self.like_count = self.video['items'][0]['statistics']['likeCount']
+
+    def __repr__(self):
+        """Вывод названия видио"""
+        return f"{self.video_title}"
+
+class PLVideo(Video): # Наследуем класс Video в новый класс PLVideo
+
+    def __init__(self, video, playlist):
+        """Иницеализируем класс по названию, колличеству просмотров,
+            колличеству лайков и названию плейлиста"""
+        super().__init__(video)
+        api_key: str = os.getenv('AFI_KEY')
+        youtube = build('youtube', 'v3', developerKey=api_key)
+        self.playlist = youtube.playlists().list(id=playlist, part='snippet').execute()
+        self.playlist_name = self.playlist['items'][0]['snippet']['title']
+
+    def __repr__(self):
+        """Вывод названия видио и названия плейлиста"""
+        return f"{self.video_title} ({self.playlist_name})"
 
 # channel_id = Channel('UC1eFXmJNkjITxPFWTy6RsWg')    # Редакция
 # vdud = Channel('UCMCgOm8GZkHp8zJ6l7_hIuA')
-# print(vdud > channel_id)
+# pprint(vdud)
+
+# video1 = Video('9lO06Zxhu88')
+# video2 = PLVideo('BBotskuyw_M', 'PL7Ntiz7eTKwrqmApjln9u4ItzhDLRtPuD')
+# print(video1)
+# print(video2)
+
 
 
