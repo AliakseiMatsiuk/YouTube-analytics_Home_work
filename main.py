@@ -10,13 +10,13 @@ class Channel:
         youtube = build('youtube', 'v3', developerKey=api_key)
         self.channel = youtube.channels().list(id=channel, part='snippet,statistics').execute()
 
-        self._channel_id = self.channel["items"][0]["id"] # id
-        self.title = self.channel['items'][0]['snippet']['title'] # название канала
-        self.description = self.channel['items'][0]["snippet"]['description'] # описание канала
-        self.url = "https://www.youtube.com/channel/" + self.channel_id # ссылка на канал
-        self.subscriber_count = self.channel['items'][0]['statistics']["subscriberCount"] # количество подписчиков
-        self.video_count = self.channel['items'][0]['statistics']['videoCount'] # количество видео
-        self.views_count = self.channel['items'][0]['statistics']['viewCount'] # общее количество просмотров
+        self._channel_id = self.channel["items"][0]["id"]  # id
+        self.title = self.channel['items'][0]['snippet']['title']  # название канала
+        self.description = self.channel['items'][0]["snippet"]['description']  # описание канала
+        self.url = "https://www.youtube.com/channel/" + self.channel_id  # ссылка на канал
+        self.subscriber_count = self.channel['items'][0]['statistics']["subscriberCount"]  # количество подписчиков
+        self.video_count = self.channel['items'][0]['statistics']['videoCount']  # количество видео
+        self.views_count = self.channel['items'][0]['statistics']['viewCount']  # общее количество просмотров
 
     def __str__(self):
         """Возврощает название ютуб канала"""
@@ -63,7 +63,8 @@ class Channel:
         """Сравниквает но > количество подпищиков"""
         return int(self.subscriber_count) > int(other.subscriber_count)
 
-class Video: #Создаем класс Video
+
+class Video:  # Создаем класс Video
 
     def __init__(self, video):
         """Иницеализируем класс по названию, колличеству просмотров и
@@ -79,7 +80,8 @@ class Video: #Создаем класс Video
         """Вывод названия видио"""
         return f"{self.video_title}"
 
-class PLVideo(Video): # Наследуем класс Video в новый класс PLVideo
+
+class PLVideo(Video):  # Наследуем класс Video в новый класс PLVideo
 
     def __init__(self, video, playlist):
         """Иницеализируем класс по названию, колличеству просмотров,
@@ -94,14 +96,16 @@ class PLVideo(Video): # Наследуем класс Video в новый кла
         """Вывод названия видио и названия плейлиста"""
         return f"{self.video_title} ({self.playlist_name})"
 
-# channel_id = Channel('UC1eFXmJNkjITxPFWTy6RsWg')    # Редакция
-# vdud = Channel('UCMCgOm8GZkHp8zJ6l7_hIuA')
-# pprint(vdud)
 
-# video1 = Video('9lO06Zxhu88')
-# video2 = PLVideo('BBotskuyw_M', 'PL7Ntiz7eTKwrqmApjln9u4ItzhDLRtPuD')
-# print(video1)
-# print(video2)
+class PlayList:
 
+    def __init__(self, playlist_id):
+        api_key: str = os.getenv('AFI_KEY')
+        youtube = build('youtube', 'v3', developerKey=api_key)
+        self.playlist = youtube.playlists().list(id=playlist_id, part='snippet').execute()
+        self.playlist_videos = youtube.playlistItems().list(playlistId=playlist_id,part='contentDetails',maxResults=50,).execute()
+        self.title = self.playlist['items'][0]['snippet']['title']
+        self.url = "https://www.youtube.com/playlist?list=" + playlist_id
 
-
+pl = PlayList('PLguYHBi01DWr4bRWc4uaguASmo7lW4GCb')
+pprint(pl.playlist_videos)
