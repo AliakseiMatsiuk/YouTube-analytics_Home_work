@@ -2,6 +2,8 @@ import os
 import json
 from googleapiclient.discovery import build
 from pprint import pprint
+import isodate
+import datetime
 
 
 class Channel:
@@ -97,15 +99,50 @@ class PLVideo(Video):  # Наследуем класс Video в новый кл�
         return f"{self.video_title} ({self.playlist_name})"
 
 
-class PlayList:
-
+class Mixin: # класс Mixin в помощь остальным
     def __init__(self, playlist_id):
+        """Инициализаторы плейсилстов и видио"""
         api_key: str = os.getenv('AFI_KEY')
         youtube = build('youtube', 'v3', developerKey=api_key)
         self.playlist = youtube.playlists().list(id=playlist_id, part='snippet').execute()
-        self.playlist_videos = youtube.playlistItems().list(playlistId=playlist_id,part='contentDetails',maxResults=50,).execute()
+        self.playlist_videos = youtube.playlistItems().list(playlistId=playlist_id, part='contentDetails',
+                                                            maxResults=50, ).execute()
+        video_ids: list[str] = [video['contentDetails']['videoId'] for video in self.playlist_videos['items']]
+        self.video_response = youtube.videos().list(part='contentDetails,statistics', id=','.join(video_ids)).execute()
+
+
+class PlayList(Mixin):
+    def __init__(self, playlist_id):
+        super().__init__(playlist_id)
         self.title = self.playlist['items'][0]['snippet']['title']
         self.url = "https://www.youtube.com/playlist?list=" + playlist_id
 
-pl = PlayList('PLguYHBi01DWr4bRWc4uaguASmo7lW4GCb')
-pprint(pl.playlist_videos)
+    @property
+    def total_duration(self):
+        """Подсчёт сцммарной длительности плейслиста"""
+        total_duration = datetime.timedelta()
+        for video in self.video_response['items']:
+            iso_8601_duration = video['contentDetails']['duration']
+            duration = isodate.parse_duration(iso_8601_duration)
+            total_duration += duration
+        return total_duration
+
+    def show_best_video(self):
+        """Возвращает ссылку на самое популярное видео из плейлиста
+        (по количеству лайков)"""
+        count = [1]
+        id = ""
+        for i in self.video_response["items"]:
+            if int(i['statistics']['likeCount']) > count[0]:
+                count[0] = int(i['statistics']['likeCount'])
+                id = i["id"]
+        return f'https://youtu.be/{id}'
+
+# pl = PlayList('PLguYHBi01DWr4bRWc4uaguASmo7lW4GCb')
+# print(pl.title)
+# print(pl.url)
+# duratian = pl.total_duration
+# print(pl.show_best_video())
+# print(duratian)
+# print(type(duratian))
+# print(duratian.total_seconds())
