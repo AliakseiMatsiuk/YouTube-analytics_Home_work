@@ -73,10 +73,17 @@ class Video:  # Создаем класс Video
         колличеству лайков"""
         api_key: str = os.getenv('AFI_KEY')
         youtube = build('youtube', 'v3', developerKey=api_key)
-        self.video = youtube.videos().list(id=video, part='snippet,statistics').execute()
-        self.video_title = self.video['items'][0]['snippet']['title']
-        self.view_count = self.video['items'][0]['statistics']['viewCount']
-        self.like_count = self.video['items'][0]['statistics']['likeCount']
+        try:
+            self.video = youtube.videos().list(id=video, part='snippet,statistics').execute()
+            self.video_id = self.video['items'][0]['id']
+            self.video_title = self.video['items'][0]['snippet']['title']
+            self.view_count = self.video['items'][0]['statistics']['viewCount']
+            self.like_count = self.video['items'][0]['statistics']['likeCount']
+        except:
+            self.video_id = video
+            self.video_title = None
+            self.view_count = None
+            self.like_count = None
 
     def __repr__(self):
         """Вывод названия видио"""
@@ -99,7 +106,7 @@ class PLVideo(Video):  # Наследуем класс Video в новый кл�
         return f"{self.video_title} ({self.playlist_name})"
 
 
-class Mixin: # класс Mixin в помощь остальным
+class Mixin:  # класс Mixin в помощь остальным
     def __init__(self, playlist_id):
         """Инициализаторы плейсилстов и видио"""
         api_key: str = os.getenv('AFI_KEY')
@@ -138,11 +145,7 @@ class PlayList(Mixin):
                 id = i["id"]
         return f'https://youtu.be/{id}'
 
-# pl = PlayList('PLguYHBi01DWr4bRWc4uaguASmo7lW4GCb')
-# print(pl.title)
-# print(pl.url)
-# duratian = pl.total_duration
-# print(pl.show_best_video())
-# print(duratian)
-# print(type(duratian))
-# print(duratian.total_seconds())
+
+# video1 = Video('9lO06Zxhu88')
+# broken_video = Video('broken_video_id')
+# print(broken_video.video_id)
