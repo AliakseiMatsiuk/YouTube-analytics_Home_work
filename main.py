@@ -1,7 +1,7 @@
 import os
 import json
 from googleapiclient.discovery import build
-from pprint import pprint
+#from pprint import pprint
 import isodate
 import datetime
 
@@ -79,7 +79,8 @@ class Video:  # Создаем класс Video
             self.video_title = self.video['items'][0]['snippet']['title']
             self.view_count = self.video['items'][0]['statistics']['viewCount']
             self.like_count = self.video['items'][0]['statistics']['likeCount']
-        except:
+
+        except IndexError:
             self.video_id = video
             self.video_title = None
             self.view_count = None
@@ -146,6 +147,8 @@ class PlayList(Mixin):
         return f'https://youtu.be/{id}'
 
 
-# video1 = Video('9lO06Zxhu88')
-# broken_video = Video('broken_video_id')
-# print(broken_video.video_id)
+video1 = Video('9lO06Zxhu88')
+broken_video = Video('broken_video_id')
+print(broken_video.video_id)
+print(broken_video.video_title)
+
